@@ -1,83 +1,123 @@
 # Deployment Guide
 
-This document provides step-by-step instructions for setting up and running the DATLLMARCH project on your local machine using Visual Studio Code or any Python IDE.
+    This document provides step-by-step instructions for setting up and running 
+the DATLLMARCH project on your local machine using Visual Studio Code or any 
+Python IDE.
 
-## Prerequisites
+    ## Prerequisites
 
-- **Python 3.10+** installed.
-- **Git** installed for cloning the repository.
-- **Virtual environment tool** such as `venv`.
-- **Visual Studio Code** (or any IDE) with the Python extension. The instructions are similar for other editors.
+    - **Python 3.10+** installed.
+    - **Git** installed for cloning the repository.
+    - **Virtual environment tool** such as `venv`.
+    - **Visual Studio Code** (or any IDE) with the Python extension. The 
+    instructions are similar for other editors.
 
-## Setup Steps
+## Dependencies: Core vs Extras
 
-1. **Clone the repository**
+- **Core (must-have)**
+  - torch, transformers, sentence-transformers, faiss-cpu, requests, beautifulsoup4
 
-   ```bash
-   git clone https://github.com/Reedickulos/DATLLMARCH.git
-   cd DATLLMARCH
-   ```
+- **Extras (enable advanced features)**
+  - GPU-efficient inference: bitsandbytes, auto-gptq
+  - Local inference backend: llama-cpp-python
+  - Orchestration: langchain
+  - Vector DB integrations: chroma-hnswlib, weaviate-client
+  - Web parsing: trafilatura, newspaper3k
 
-2. **Create a virtual environment**
+    ## Setup Steps
 
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\\Scripts\\activate`
-   ```
+    1. **Clone the repository**
 
-3. **Install dependencies**
+       ```bash
+       git clone https://github.com/Reedickulos/DATLLMARCH.git
+       cd DATLLMARCH
+       ```
 
-   Install the base dependencies listed in `requirements.txt`:
+    2. **Create a virtual environment**
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+       ```bash
+       python -m venv venv
+       source venv/bin/activate  # On Windows use `venv\\Scripts\\activate`
+       ```
 
-   *Optional:* For an advanced setup with retrieval-augmented generation and model fine-tuning you may need additional libraries such as `beautifulsoup4`, `faiss-cpu`, `sentence-transformers`, `torch`, `transformers` and `llama-cpp-python`. Install them as needed:
+    3. **Install dependencies**
 
-   ```bash
-   pip install beautifulsoup4 faiss-cpu sentence-transformers torch transformers llama-cpp-python openai
-   ```
+       Install the base dependencies listed in `requirements.txt`:
 
-4. **Configure the system**
+       ```bash
+       pip install -r requirements.txt
+       ```
 
-   Edit `config.json` to adjust the number of discovery cycles, the path to the database file, or to enable the retrieval-augmented knowledge base (`"rag_enabled": true`).
+       *Optional:* For an advanced setup with retrieval-augmented generation and
+       model fine-tuning you may need additional libraries such as `beautifulsoup4`, 
+       `faiss-cpu`, `sentence-transformers`, `torch`, `transformers` and `llama-cpp-
+       python`. Install them as needed:
 
-5. **Run the pipeline**
+       ```bash
+       pip install beautifulsoup4 faiss-cpu sentence-transformers torch 
+       transformers llama-cpp-python openai
+       ```
 
-   From the project root run:
+    4. **Configure the system**
 
-   ```bash
-   python -m pipeline.pipeline
-   ```
+       Edit `config.json` to adjust the number of discovery cycles, the path to 
+       the database file, or to enable the retrieval-augmented knowledge base 
+       (`"rag_enabled": true`).
 
-   The script will iterate through candidate architectures, evaluate them using your local LLaMA 3 model via an Ollama server if available (see below), compute composite scores and output a summary. Results are stored in the path specified by `database_path`.
+    5. **Run the pipeline**
 
-## Using LLaMA 3
+       From the project root run:
 
-The architecture evaluator is designed to call a local LLaMA 3 via [Ollama](https://ollama.com). Install and run Ollama on your machine, then pull the LLaMA 3 model:
+       ```bash
+       python -m pipeline.pipeline
+       ```
 
-```bash
-brew install ollama  # or see the Ollama docs for other platforms
-ollama pull llama3
-ollama serve
-```
+       The script will iterate through candidate architectures, evaluate them 
+       using your local LLaMA 3 model via an Ollama server if available (see below), 
+       compute composite scores and output a summary. Results are stored in the path 
+       specified by `database_path`.
 
-The evaluator will automatically send prompts to `http://localhost:11434/api/generate`. If this endpoint is unavailable, random scores are used as a fallback.
+    ## Using LLaMA 3
 
-## Retrieval-Augmented Generation (RAG)
+    The architecture evaluator is designed to call a local LLaMA 3 via 
+    [Ollama](https://ollama.com). Install and run Ollama on your machine, then pull 
+    the LLaMA 3 model:
 
-To enable retrieval‑augmented reasoning, set `"rag_enabled": true` in `config.json` and populate the `cognition_base/rag_service.py` with a corpus of domain knowledge. For a production deployment you can replace the stub with a vector database such as FAISS or Pinecone, and integrate scraping functions to ingest papers from the web.
+    ```bash
+    brew install ollama  # or see the Ollama docs for other platforms
+    ollama pull llama3
+    ollama serve
+    ```
 
-## Opening in Visual Studio Code
+    The evaluator will automatically send prompts to 
+    `http://localhost:11434/api/generate`. If this endpoint is unavailable, random 
+    scores are used as a fallback.
 
-1. Launch **VS Code** and open the cloned `DATLLMARCH` folder.
-2. When prompted, select the Python interpreter from your virtual environment (`venv` folder).
-3. Install the Python extension if not already installed.
-4. Use the integrated terminal to run the setup commands above.
-5. You can set breakpoints and debug `pipeline/pipeline.py` to trace the discovery loop.
+    ## Retrieval-Augmented Generation (RAG)
 
-## Notes
+    To enable retrieval‑augmented reasoning, set `"rag_enabled": true` in 
+    `config.json` and populate the `cognition_base/rag_service.py` with a corpus of 
+    domain knowledge. For a production deployment you can replace the stub with a 
+    vector database such as FAISS or Pinecone, and integrate scraping functions to 
+    ingest papers from the web.
 
-- This project is a minimal skeleton to illustrate how ASI-Arch’s multi‑agent architecture discovery can be integrated with a lightweight local agent. Extending it to a fully fledged research system requires implementing the `database` and `cognition_base` backends, adding real scoring metrics, and integrating a state-of-the-art LLM.
-- Ensure your machine has sufficient resources to run LLaMA 3. The model can be memory intensive; adjust the model size in `config.json` if using a smaller version.
+    ## Opening in Visual Studio Code
+
+    1. Launch **VS Code** and open the cloned `DATLLMARCH` folder.
+    2. When prompted, select the Python interpreter from your virtual 
+       environment (`venv` folder).
+    3. Install the Python extension if not already installed.
+    4. Use the integrated terminal to run the setup commands above.
+    5. You can set breakpoints and debug `pipeline/pipeline.py` to trace the 
+       discovery loop.
+
+    ## Notes
+
+    - This project is a minimal skeleton to illustrate how ASI-Arch’s 
+    multi‑agent architecture discovery can be integrated with a lightweight local 
+    agent. Extending it to a fully fledged research system requires implementing the
+    `database` and `cognition_base` backends, adding real scoring metrics, and 
+    integrating a state-of-the-art LLM.
+    - Ensure your machine has sufficient resources to run LLaMA 3. The model can
+    be memory intensive; adjust the model size in `config.json` if using a smaller 
+    version.
