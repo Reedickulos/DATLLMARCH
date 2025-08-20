@@ -48,16 +48,6 @@ Python IDE.
        pip install -r requirements.txt
        ```
 
-       *Optional:* For an advanced setup with retrieval-augmented generation and
-       model fine-tuning you may need additional libraries such as `beautifulsoup4`, 
-       `faiss-cpu`, `sentence-transformers`, `torch`, `transformers` and `llama-cpp-
-       python`. Install them as needed:
-
-       ```bash
-       pip install beautifulsoup4 faiss-cpu sentence-transformers torch 
-       transformers llama-cpp-python openai
-       ```
-
     4. **Configure the system**
 
        Edit `config.json` to adjust the number of discovery cycles, the path to 
